@@ -10,34 +10,61 @@ canvas {
 }
 
 html,
-body,
-#root {
+body {
   height: 100%;
 }
 body {
   font: 110%/1.4 sans-serif;
   background-color: #ddd;
 }
-.Board {
+
+.Categories {
   display: grid;
-  background-color: black;
-  gap: 1px;
-  padding: 1px;
-  text-align: center;
-  height: 75vmin;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(6, 1fr);
+  grid-template:
+    "one two three four five six ." 1fr
+    "threeok fourok fh ss ls yahtzee chance" 1fr
+    / 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
-.Board > * {
-  background-color: #ddd;
+.Categories > button:nth-child(1) {
+  grid-area: one;
 }
-.Scores {
-  display: flex;
-  justify-content: space-evenly;
-  height: 5em;
+.Categories > button:nth-child(2) {
+  grid-area: two;
 }
-.Score {
-  text-align: center;
-  border: 1px solid black;
-  width: 5em;
+.Categories > button:nth-child(3) {
+  grid-area: three;
+}
+.Categories > button:nth-child(4) {
+  grid-area: four;
+}
+.Categories > button:nth-child(5) {
+  grid-area: five;
+}
+.Categories > button:nth-child(6) {
+  grid-area: six;
+}
+.Categories > button:nth-child(7) {
+  grid-area: threeok;
+}
+.Categories > button:nth-child(8) {
+  grid-area: fourok;
+}
+.Categories > button:nth-child(9) {
+  grid-area: fh;
+}
+.Categories > button:nth-child(10) {
+  grid-area: ss;
+}
+.Categories > button:nth-child(11) {
+  grid-area: ls;
+}
+.Categories > button:nth-child(12) {
+  grid-area: yahtzee;
+}
+.Categories > button:nth-child(13) {
+  grid-area: chance;
+}
+
+.Dice > button.heald {
+  border: 3px solid black;
 }

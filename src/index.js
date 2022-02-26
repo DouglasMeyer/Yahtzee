@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { render } from "react-dom";
+import Yahtzee from "./yahtzee";
+
+// Icon framework
+// ==============
 
 // {
 //   const img = document.querySelector("img");
@@ -26,108 +28,70 @@ import { render } from "react-dom";
 // );
 // navigator.serviceWorker.register("./service-worker.js");
 
-const initBoard = {
-  "Family Together": {
-    "What is pizza": "We eat this at Nicks",
-    "What is Anne st": "We live on this street",
-    "What is pizza2": "We eat this at Nicks",
-    "What is Anne st2": "We live on this street",
-    "What is pizza3": "We eat this at Nicks",
-    "what is meeting eachother3": "hello",
-  },
-  "Family Together2": {
-    "What is pizza": "We eat this at Nicks",
-    "What is Anne st": "We live on this street",
-    "What is pizza2": "We eat this at Nicks",
-    "What is Anne st2": "We live on this street",
-    "What is pizza3": "We eat this at Nicks",
-    "What is Anne st3": "We live on this street",
-  },
-  "Family Together3": {
-    "What is pizza": "We eat this at Nicks",
-    "What is Anne st": "We live on this street",
-    "What is pizza2": "We eat this at Nicks",
-    "What is Anne st2": "We live on this street",
-    "What is pizza3": "We eat this at Nicks",
-    "What is Anne st3": "We live on this street",
-  },
-  "Family Together4": {
-    "What is pizza": "We eat this at Nicks",
-    "What is Anne st": "We live on this street",
-    "What is pizza2": "We eat this at Nicks",
-    "What is Anne st2": "We live on this street",
-    "What is pizza3": "We eat this at Nicks",
-    "What is Anne st3": "We live on this street",
-  },
-  "Family Together5": {
-    "What is pizza": "We eat this at Nicks",
-    "What is Anne st": "We live on this street",
-    "What is pizza2": "We eat this at Nicks",
-    "What is Anne st2": "We live on this street",
-    "What is pizza3": "We eat this at Nicks",
-    "What is Anne st3": "We live on this street",
-  },
-  "Family Together6": {
-    "What is pizza": "We eat this at Nicks",
-    "What is Anne st": "We live on this street",
-    "What is pizza2": "We eat this at Nicks",
-    "What is Anne st2": "We live on this street",
-    "What is pizza3": "We eat this at Nicks",
-    "What is Anne st3": "We live on this street",
-  },
-};
 
-const Board = () => {
-  const categories = Object.keys(board);
-  const questions = Object.values(board);
-  const values = [...Array(5).keys()].map((v) => (v + 1) * 100);
-  return (
-    <div className="Board">
-      {categories.map((c) => (
-        <div>{c}</div>
-      ))}
-      {[...Array(5).keys()].map((row) =>
-        categories.map(() => <div>${(row + 1) * 100}</div>)
-      )}
-    </div>
-  );
-};
-const Score = ({ name, score }) => {
-  return (
-    <div className="Score">
-      <div>{name}</div>
-      <div>${Math.floor(Math.random() * 50) * 100}</div>
-    </div>
-  );
-};
-const storageKey = "Jeopardy_key";
-const App = () => {
-  const [state, setState] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(storageKey));
-    } catch (e) {
-      console.error(e);
+customElements.define(
+  "yahtzee-game",
+  class extends HTMLElement {
+    connectedCallback() {
+      const categories = this.querySelector(".Categories");
+      Object.keys(Yahtzee.categoryScoring).forEach((category) => {
+        const button = document.createElement("button");
+        button.textContent = button.dataset.category = category;
+        categories.appendChild(button);
+      });
+      categories.addEventListener("click", (event) => {
+        const category = event.target.dataset.category;
+        if (!category) return;
+        this.yahtzee.assign(category);
+        this.healdDice = [false, false, false, false, false];
+        this.render();
+      });
+      this.querySelector(".Dice").addEventListener("click", (event) => {
+        const index = event.target.dataset.index;
+        this.healdDice[index] = !this.healdDice[index];
+        this.render();
+      });
+      this.querySelector(".Roll").addEventListener("click", (event) => {
+        this.yahtzee.roll(
+          ...this.healdDice
+            .map((heald, index) => (heald ? false : index))
+            .filter((n) => n !== false)
+        );
+        this.render();
+      });
+      this.startGame();
     }
-    return {
-      board: initBoard,
-      players: [
-        { name: "Norah", score: 0 },
-        { name: "Doug", score: 0 },
-        { name: "Katy", score: 0 },
-      ],
-    };
-  });
-
-  return (
-    <div>
-      <h1>JEOPARDY</h1>
-      <Board />
-      <div className="Scores">
-        <Score name="Norah" />
-        <Score name="Dad" />
-        <Score name="Mom" />
-      </div>
-    </div>
-  );
-};
-render(<App />, window.root);
+    startGame() {
+      window.yahtzee = this.yahtzee = new Yahtzee();
+      this.healdDice = [false, false, false, false, false];
+      this.render();
+    }
+    render() {
+      [...this.querySelectorAll(".Categories > button")].forEach(
+        (categoryEl) => {
+          const category = categoryEl.dataset.category;
+          categoryEl.textContent = category;
+          const rolls = this.yahtzee.assignments[category];
+          categoryEl.disabled = Boolean(rolls);
+          if (!rolls) return;
+          categoryEl.textContent +=
+            " - " + Yahtzee.categoryScoring[category](rolls);
+        }
+      );
+      const dice = [...this.querySelectorAll(".Dice > button")];
+      dice.forEach((die, dieIndex) => {
+        die.classList.toggle("heald", this.healdDice[dieIndex]);
+        die.textContent =
+          this.yahtzee.dice[dieIndex] === null
+            ? "\xa0"
+            : this.yahtzee.dice[dieIndex];
+      });
+      this.querySelector(".RemainingRolls").textContent =
+        this.yahtzee.remainingRolls;
+      this.querySelector(".UpperBonus").textContent = this.yahtzee.upperBonus;
+      this.querySelector(".AdditionalYahtzees").textContent =
+        this.yahtzee.additionalYahtzees;
+      this.querySelector(".Score").textContent = this.yahtzee.score;
+    }
+  }
+);

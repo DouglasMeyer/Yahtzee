@@ -39,7 +39,21 @@
       >
       to generate favicon from SVG file.
     </p> -->
-    <div id="root"></div>
+    <yahtzee-game>
+      <div class="Categories"></div>
+      <div class="Dice">
+        <button data-index="0"></button>
+        <button data-index="1"></button>
+        <button data-index="2"></button>
+        <button data-index="3"></button>
+        <button data-index="4"></button>
+      </div>
+      <div class="RemainingRolls"></div>
+      <div class="UpperBonus"></div>
+      <div class="AdditionalYahtzees"></div>
+      <button class="Roll">Roll</button>
+      <div class="Score"></div>
+    </yahtzee-game>
     <script src="./index.js" type="module"></script>
   </body>
 </html>

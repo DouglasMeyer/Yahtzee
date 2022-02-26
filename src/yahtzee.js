@@ -2,16 +2,16 @@ const sum = (a, b) => a + b;
 
 class Yahtzee {
   static categoryScoring = {
-    Ones: (rolls) => rolls.filter((roll) => roll === 0).reduce(sum, 0),
-    Twos: (rolls) => rolls.filter((roll) => roll === 1).reduce(sum, 0),
-    Threes: (rolls) => rolls.filter((roll) => roll === 2).reduce(sum, 0),
-    Fours: (rolls) => rolls.filter((roll) => roll === 3).reduce(sum, 0),
-    Fives: (rolls) => rolls.filter((roll) => roll === 4).reduce(sum, 0),
-    Sixes: (rolls) => rolls.filter((roll) => roll === 5).reduce(sum, 0),
+    Ones: (rolls) => rolls.filter((roll) => roll === 1).reduce(sum, 0),
+    Twos: (rolls) => rolls.filter((roll) => roll === 2).reduce(sum, 0),
+    Threes: (rolls) => rolls.filter((roll) => roll === 3).reduce(sum, 0),
+    Fours: (rolls) => rolls.filter((roll) => roll === 4).reduce(sum, 0),
+    Fives: (rolls) => rolls.filter((roll) => roll === 5).reduce(sum, 0),
+    Sixes: (rolls) => rolls.filter((roll) => roll === 6).reduce(sum, 0),
     "Three of a Kind": (rolls) => rolls.reduce(sum, 0),
     "Four of a Kind": (rolls) => rolls.reduce(sum, 0),
     "Full House": (rolls) => {
-      const uniqueRolls = rolls.filter((e, i, a) => a.indexOf(e) === i);
+      const uniqueRolls = rolls.filter((e, i, a) => a.indexOf(e) === i).length;
       if (uniqueRolls !== 2) return 0;
       const matchedRolls = rolls.filter((roll) => roll === rolls[0]).length;
       if (matchedRolls === 2 || matchedRolls === 3) return 25;
@@ -20,24 +20,24 @@ class Yahtzee {
     "Small Straight": (rolls) => {
       const sortedRolls = [...rolls].sort();
       const roleDeltas = sortedRolls.reduce((acc, now, index) => [
-        ...acc,
+        ...(Array.isArray(acc) ? acc : []),
         now - sortedRolls[index - 1],
       ]);
       const oneDeltaCount = roleDeltas.filter((delta) => delta === 1).length;
-      return oneDeltaCount >= 4 ? 30 : 0;
+      return oneDeltaCount >= 3 ? 30 : 0;
     },
-    "Large Straight": (_rolls) => {
+    "Large Straight": (rolls) => {
       const sortedRolls = [...rolls].sort();
       const roleDeltas = sortedRolls.reduce((acc, now, index) => [
-        ...acc,
+        ...(Array.isArray(acc) ? acc : []),
         now - sortedRolls[index - 1],
       ]);
       const oneDeltaCount = roleDeltas.filter((delta) => delta === 1).length;
-      return oneDeltaCount === 5 ? 40 : 0;
+      return oneDeltaCount === 4 ? 40 : 0;
     },
     Yahtzee: (rolls) => {
       const uniqueRolls = rolls.filter((e, i, a) => a.indexOf(e) === i);
-      return uniqueRolls.length === 5 ? 50 : 0;
+      return uniqueRolls.length === 1 ? 50 : 0;
     },
     Chance: (rolls) => rolls.reduce(sum, 0),
   };
@@ -65,8 +65,8 @@ class Yahtzee {
   roll(...indexes) {
     if (this.remainingRolls === 0) return;
 
-    for (const index of indexes || [0, 1, 2, 3, 4]) {
-      this.dice[index] = Math.floor(Math.random() * 6);
+    for (const index of indexes) {
+      this.dice[index] = Math.floor(Math.random() * 6) + 1;
     }
     this.remainingRolls--;
   }
@@ -80,7 +80,7 @@ class Yahtzee {
     delete this._score;
   }
 
-  score() {
+  get score() {
     if (this._score) return this._score;
 
     let upper = 0;
@@ -88,9 +88,12 @@ class Yahtzee {
     let lower = 0;
     this.additionalYahtzees = 0;
     const isAYahtzee = Yahtzee.categoryScoring["Yahtzee"];
-    const hasYahtzee = isAYahtzee(this.assignments["Yahtzee"]) !== 0;
+    const hasYahtzee =
+      this.assignments["Yahtzee"] &&
+      isAYahtzee(this.assignments["Yahtzee"]) !== 0;
 
     Object.entries(this.assignments).forEach(([category, dice], index) => {
+      if (!dice) return;
       if (hasYahtzee && category !== "Yahtzee" && isAYahtzee(dice))
         this.additionalYahtzees++;
       const score = Yahtzee.categoryScoring[category](dice);
