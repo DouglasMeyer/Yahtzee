@@ -1,0 +1,43 @@
+body {
+  font: 16pt/1.4 sans-serif;
+  margin: 0;
+}
+
+img,
+canvas {
+  box-shadow: 0 0 5px -2px black;
+  vertical-align: middle;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  font: 110%/1.4 sans-serif;
+  background-color: #ddd;
+}
+.Board {
+  display: grid;
+  background-color: black;
+  gap: 1px;
+  padding: 1px;
+  text-align: center;
+  height: 75vmin;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+}
+.Board > * {
+  background-color: #ddd;
+}
+.Scores {
+  display: flex;
+  justify-content: space-evenly;
+  height: 5em;
+}
+.Score {
+  text-align: center;
+  border: 1px solid black;
+  width: 5em;
+}
