@@ -65,6 +65,40 @@ body {
   grid-area: chance;
 }
 
-.Dice > button.heald {
-  border: 3px solid black;
+yahtzee-die {
+  display: inline-block;
+  position: relative;
+  --size: 5em;
+  width: var(--size);
+  height: var(--size);
+  transform-style: preserve-3d;
+  margin: calc(var(--size) / 2);
+}
+yahtzee-die > div {
+  display: inline-grid;
+  place-content: center;
+  width: var(--size);
+  height: var(--size);
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: white;
+  position: absolute;
+}
+yahtzee-die > div:nth-child(n + 1) {
+  transform: translateZ(calc(var(--size) / 2));
+}
+yahtzee-die > div:nth-child(n + 2) {
+  transform: rotateY(180deg) translateZ(calc(var(--size) / 2));
+}
+yahtzee-die > div:nth-child(n + 3) {
+  transform: rotateY(90deg) translateZ(calc(var(--size) / 2));
+}
+yahtzee-die > div:nth-child(n + 4) {
+  transform: rotateY(-90deg) translateZ(calc(var(--size) / 2));
+}
+yahtzee-die > div:nth-child(n + 5) {
+  transform: rotateX(90deg) translateZ(calc(var(--size) / 2));
+}
+yahtzee-die > div:nth-child(n + 6) {
+  transform: rotateX(-90deg) translateZ(calc(var(--size) / 2));
 }
