@@ -35,9 +35,10 @@ customElements.define(
     connectedCallback() {
       const categories = this.querySelector(".Categories");
       Object.keys(Yahtzee.categoryScoring).forEach((category) => {
-        const button = document.createElement("button");
-        button.textContent = button.dataset.category = category;
-        categories.appendChild(button);
+        const el = document.createElement("div");
+        el.dataset.category = category;
+        el.innerHTML = `${category} <span>-</span>`;
+        categories.appendChild(el);
       });
       categories.addEventListener("click", (event) => {
         const category = event.target.dataset.category;
@@ -51,10 +52,16 @@ customElements.define(
         if (die.tagName !== "YAHTZEE-DIE") die = die.parentElement;
         if (die.tagName !== "YAHTZEE-DIE") return;
         const index = die.dataset.index;
+        if (this.yahtzee.dice[index] === null) return;
         this.healdDice[index] = !this.healdDice[index];
         die.toggleAttribute("heald", this.healdDice[index]);
       });
       this.querySelector(".Roll").addEventListener("click", (event) => {
+        if (this.yahtzee.gameOver) {
+          this.startGame();
+          return;
+        }
+        if (!this.yahtzee.remainingRolls) return;
         this.yahtzee.roll(
           ...this.healdDice
             .map((heald, index) => (heald ? false : index))
@@ -70,25 +77,42 @@ customElements.define(
       this.render();
     }
     render() {
-      [...this.querySelectorAll(".Categories > button")].forEach(
-        (categoryEl) => {
-          const category = categoryEl.dataset.category;
-          categoryEl.textContent = category;
-          const rolls = this.yahtzee.assignments[category];
-          categoryEl.disabled = Boolean(rolls);
-          if (!rolls) return;
-          categoryEl.textContent +=
-            " - " + Yahtzee.categoryScoring[category](rolls);
+      [...this.querySelectorAll(".Categories > *")].forEach((categoryEl) => {
+        const category = categoryEl.dataset.category;
+        categoryEl.textContent = category;
+        const rolls = this.yahtzee.assignments[category];
+        const button = document.createElement("button");
+        button.textContent = "-";
+        button.disabled = true;
+        button.dataset.category = category;
+        if (rolls) {
+          button.textContent = Yahtzee.categoryScoring[category](rolls);
+        } else if (this.yahtzee.dice[0] !== null) {
+          button.disabled = false;
+          button.textContent = Yahtzee.categoryScoring[category](
+            this.yahtzee.dice
+          );
         }
-      );
+        categoryEl.appendChild(button);
+      });
       const dice = [...this.querySelectorAll(".Dice > yahtzee-die")];
       dice.forEach((die, dieIndex) => {
         die.toggleAttribute("heald", this.healdDice[dieIndex]);
-        if (!this.healdDice[dieIndex])
+
+        if (this.yahtzee.dice[dieIndex] === null) {
+          die.removeAttribute("face");
+        } else if (!this.healdDice[dieIndex]) {
           die.setAttribute("face", this.yahtzee.dice[dieIndex]);
+        }
       });
-      this.querySelector(".RemainingRolls").textContent =
-        this.yahtzee.remainingRolls;
+      const roll = this.querySelector(".Roll");
+      if (this.yahtzee.gameOver) {
+        roll.textContent = "New Game";
+        roll.disabled = false;
+      } else {
+        roll.textContent = `Roll - ${this.yahtzee.remainingRolls}`;
+        roll.disabled = this.yahtzee.remainingRolls === 0;
+      }
       this.querySelector(".UpperBonus").textContent = this.yahtzee.upperBonus;
       this.querySelector(".AdditionalYahtzees").textContent =
         this.yahtzee.additionalYahtzees;
@@ -104,34 +128,27 @@ customElements.define(
       return ["face", "heald"];
     }
     slowSpin() {
-      this.getAnimations()[0]?.commitStyles();
-      this.getAnimations().forEach((a) => a.cancel());
-      const style = window.getComputedStyle(this, null);
-      const transformation =
-        style.getPropertyValue("-webkit-transform") ||
-        style.getPropertyPriority("-moz-transform") ||
-        style.getPropertyPriority("-ms-transform") ||
-        style.getPropertyPriority("-o-transform") ||
-        style.getPropertyPriority("transform");
-      let x, y, z, angle;
-      if (!transformation || !transformation.startsWith("matrix3d(")) {
-        x = Math.random() - 0.5;
-        y = Math.random() - 0.5;
-        z = Math.random() - 0.5;
-        angle = Math.floor(Math.random() * 360);
-      } else {
-        const [a, b, c, _a, d, e, f, _b, g, h, i, _c, _j, _k, _l, _d] =
-          transformation.slice(9, -1).split(",").map(parseFloat);
-        x = h - f;
-        y = c - g;
-        z = d - b;
-        angle = Math.floor(Math.atan((a + e + h - 1) / 2) / Math.PI) * 180;
-      }
 
-      this.animate(
-        {
-          transform: `rotate3d(${x}, ${y}, ${z}, ${angle + 360}deg)`,
-        },
+      this.getAnimations().forEach((animation) => {
+        animation.commitStyles();
+        animation.cancel();
+      });
+      const rotX = Math.floor(Math.random() * 360);
+      const rotY = Math.floor(Math.random() * 360);
+      const rotZ = Math.floor(Math.random() * 360);
+      this.slowSpinAnimation = this.animate(
+        [
+          {
+            transform: `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`,
+          },
+          {
+            transform: `rotateX(${
+              rotX + 360 * (Math.random() > 0.5 ? 1 : -1)
+            }deg) rotateY(${
+              rotY + 360 * (Math.random() > 0.5 ? 1 : -1)
+            }deg) rotateZ(${rotZ + 360 * (Math.random() > 0.5 ? 1 : -1)}deg)`,
+          },
+        ],
         {
           duration: 10000 + Math.random() * 3000,
           iterations: Infinity,
@@ -141,13 +158,12 @@ customElements.define(
     connectedCallback() {
       this.innerHTML = `<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>`;
 
-      this.slowSpin();
+      if (!this.slowSpinAnimation) this.slowSpin();
     }
     attributeChangedCallback(name, oldValue, newValue) {
-      console.log("attributeChangedCallback", name, oldValue, newValue);
       const face = this.getAttribute("face");
       const heald = this.hasAttribute("heald");
-      if (face === "null") return this.slowSpin();
+      if (face === null) return;
 
       let rotX = 0,
         rotY = 0,
@@ -172,14 +188,15 @@ customElements.define(
         rotZ += (Math.random() * 6 + 5) * (Math.random() > 0.5 ? 1 : -1);
       }
 
+      this.slowSpinAnimation.cancel();
       let delay = 0;
       if (name !== "heald") {
-        delay = 1000 + Math.random() * 1000;
+        delay = 300 + Math.random() * 700;
         this.animate(
           {
-            transform: `rotateX(${rotX * -10}deg) rotateY(${
-              rotY * -10
-            }deg) rotateZ(${rotZ * -10}deg)`,
+            transform: `rotateX(${rotX - 100}deg) rotateY(${
+              rotY - 100
+            }deg) rotateZ(${rotZ - 500}deg)`,
           },
           {
             duration: delay,
@@ -194,7 +211,7 @@ customElements.define(
         },
         {
           delay,
-          duration: name === "heald" ? 300 : 2000 + Math.random() * 1000,
+          duration: name === "heald" ? 300 : 1000 + Math.random() * 1000,
           easing: "ease-out",
           fill: "forwards",
         }

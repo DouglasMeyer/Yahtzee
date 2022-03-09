@@ -1,6 +1,5 @@
 body {
   font: 16pt/1.4 sans-serif;
-  margin: 0;
 }
 
 img,
@@ -18,68 +17,92 @@ body {
   background-color: #ddd;
 }
 
+input,
+button {
+  font-size: inherit;
+}
+
+input:disabled,
+button:disabled {
+  color: currentColor;
+}
+
 .Categories {
   display: grid;
   grid-template:
-    "one two three four five six ." 1fr
-    "threeok fourok fh ss ls yahtzee chance" 1fr
-    / 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    "one threeok" 1fr
+    "two fourok" 1fr
+    "three fh" 1fr
+    "four ss" 1fr
+    "five ls" 1fr
+    "six chance" 1fr
+    ". yahtzee" 1fr
+    / 1fr 1fr;
+  max-width: 20em;
+  gap: 0 2em;
+  margin: 0 auto;
 }
-.Categories > button:nth-child(1) {
+.Categories > *:nth-child(1) {
   grid-area: one;
 }
-.Categories > button:nth-child(2) {
+.Categories > *:nth-child(2) {
   grid-area: two;
 }
-.Categories > button:nth-child(3) {
+.Categories > *:nth-child(3) {
   grid-area: three;
 }
-.Categories > button:nth-child(4) {
+.Categories > *:nth-child(4) {
   grid-area: four;
 }
-.Categories > button:nth-child(5) {
+.Categories > *:nth-child(5) {
   grid-area: five;
 }
-.Categories > button:nth-child(6) {
+.Categories > *:nth-child(6) {
   grid-area: six;
 }
-.Categories > button:nth-child(7) {
+.Categories > *:nth-child(7) {
   grid-area: threeok;
 }
-.Categories > button:nth-child(8) {
+.Categories > *:nth-child(8) {
   grid-area: fourok;
 }
-.Categories > button:nth-child(9) {
+.Categories > *:nth-child(9) {
   grid-area: fh;
 }
-.Categories > button:nth-child(10) {
+.Categories > *:nth-child(10) {
   grid-area: ss;
 }
-.Categories > button:nth-child(11) {
+.Categories > *:nth-child(11) {
   grid-area: ls;
 }
-.Categories > button:nth-child(12) {
+.Categories > *:nth-child(12) {
+  grid-area: chance;
+}
+.Categories > *:nth-child(13) {
   grid-area: yahtzee;
 }
-.Categories > button:nth-child(13) {
-  grid-area: chance;
+
+.Categories > * > button {
+  float: right;
+  min-width: 2em;
 }
 
 yahtzee-die {
   display: inline-block;
   position: relative;
-  --size: 5em;
+  --size: 5rem;
   width: var(--size);
   height: var(--size);
   transform-style: preserve-3d;
   margin: calc(var(--size) / 2);
+  font-size: 2rem;
 }
 yahtzee-die > div {
   display: inline-grid;
   place-content: center;
   width: var(--size);
   height: var(--size);
-  border: 1px solid black;
+  border: 2px solid black;
   border-radius: 5px;
   background-color: white;
   position: absolute;
