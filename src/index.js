@@ -28,18 +28,17 @@ import Yahtzee from "./yahtzee";
 // );
 // navigator.serviceWorker.register("./service-worker.js");
 
-
 customElements.define(
   "yahtzee-game",
   class extends HTMLElement {
     connectedCallback() {
       const categories = this.querySelector(".Categories");
-      Object.keys(Yahtzee.categoryScoring).forEach((category) => {
-        const el = document.createElement("div");
-        el.dataset.category = category;
-        el.innerHTML = `${category} <span>-</span>`;
-        categories.appendChild(el);
-      });
+      [...categories.querySelectorAll("[data-category]")].forEach(
+        (categoryEl) => {
+          const button = categoryEl.querySelector("button");
+          button.dataset.category = categoryEl.dataset.category;
+        }
+      );
       categories.addEventListener("click", (event) => {
         const category = event.target.dataset.category;
         if (!category) return;
@@ -77,24 +76,21 @@ customElements.define(
       this.render();
     }
     render() {
-      [...this.querySelectorAll(".Categories > *")].forEach((categoryEl) => {
-        const category = categoryEl.dataset.category;
-        categoryEl.textContent = category;
-        const rolls = this.yahtzee.assignments[category];
-        const button = document.createElement("button");
-        button.textContent = "-";
-        button.disabled = true;
-        button.dataset.category = category;
-        if (rolls) {
-          button.textContent = Yahtzee.categoryScoring[category](rolls);
-        } else if (this.yahtzee.dice[0] !== null) {
-          button.disabled = false;
-          button.textContent = Yahtzee.categoryScoring[category](
-            this.yahtzee.dice
-          );
+      [...this.querySelectorAll(".Categories > [data-category]")].forEach(
+        (categoryEl) => {
+          const category = categoryEl.dataset.category;
+          const rolls = this.yahtzee.assignments[category];
+          const button = categoryEl.querySelector("button");
+          const span = categoryEl.querySelector("span");
+          button.disabled = true;
+          if (rolls) {
+            span.textContent = Yahtzee.categoryScoring[category](rolls);
+          } else if (this.yahtzee.dice[0] !== null) {
+            button.disabled = false;
+            span.textContent = "-";
+          }
         }
-        categoryEl.appendChild(button);
-      });
+      );
       const dice = [...this.querySelectorAll(".Dice > yahtzee-die")];
       dice.forEach((die, dieIndex) => {
         die.toggleAttribute("heald", this.healdDice[dieIndex]);
@@ -113,10 +109,20 @@ customElements.define(
         roll.textContent = `Roll - ${this.yahtzee.remainingRolls}`;
         roll.disabled = this.yahtzee.remainingRolls === 0;
       }
-      this.querySelector(".UpperBonus").textContent = this.yahtzee.upperBonus;
-      this.querySelector(".AdditionalYahtzees").textContent =
-        this.yahtzee.additionalYahtzees;
-      this.querySelector(".Score").textContent = this.yahtzee.score;
+      this.querySelector(".UpperBonus > span:last-child").textContent =
+        this.yahtzee.upperBonus || "-";
+      if (this.yahtzee.additionalYahtzees) {
+        const yahtzeeCategorySpan = this.querySelector(
+          '.Categories > [data-category="Yahtzee"] > span'
+        );
+        yahtzeeCategorySpan.textContent += " + 100";
+        if (this.yahtzee.additionalYahtzees > 1) {
+          yahtzeeCategorySpan.textContent += ` x${this.yahtzee.additionalYahtzees}`;
+        }
+      }
+      this.querySelector(
+        ".Score"
+      ).textContent = `Total - ${this.yahtzee.score}`;
     }
   }
 );
@@ -128,7 +134,6 @@ customElements.define(
       return ["face", "heald"];
     }
     slowSpin() {
-
       this.getAnimations().forEach((animation) => {
         animation.commitStyles();
         animation.cancel();

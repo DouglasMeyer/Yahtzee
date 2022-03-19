@@ -40,7 +40,36 @@
       to generate favicon from SVG file.
     </p> -->
     <yahtzee-game>
-      <div class="Categories"></div>
+      <div class="Categories">
+        <div data-category="Ones"><button>1</button> <span>-</span></div>
+        <div data-category="Twos"><button>2</button> <span>-</span></div>
+        <div data-category="Threes"><button>3</button> <span>-</span></div>
+        <div data-category="Fours"><button>4</button> <span>-</span></div>
+        <div data-category="Fives"><button>5</button> <span>-</span></div>
+        <div data-category="Sixes"><button>6</button> <span>-</span></div>
+        <div class="UpperBonus"><span>Upper Bonus</span> <span>-</span></div>
+
+        <div data-category="Three of a Kind">
+          <button>Three of a Kind</button> <span>-</span>
+        </div>
+        <div data-category="Four of a Kind">
+          <button>Four of a Kind</button> <span>-</span>
+        </div>
+        <div data-category="Full House">
+          <button>Full House</button> <span>-</span>
+        </div>
+        <div data-category="Small Straight">
+          <button>Small Straight</button> <span>-</span>
+        </div>
+        <div data-category="Large Straight">
+          <button>Large Straight</button> <span>-</span>
+        </div>
+        <div data-category="Chance"><button>Chance</button> <span>-</span></div>
+        <div data-category="Yahtzee">
+          <button>Yahtzee</button> <span>-</span>
+        </div>
+        <div class="Score"></div>
+      </div>
       <div class="Dice">
         <yahtzee-die data-index="0"></yahtzee-die>
         <yahtzee-die data-index="1"></yahtzee-die>
@@ -48,10 +77,7 @@
         <yahtzee-die data-index="3"></yahtzee-die>
         <yahtzee-die data-index="4"></yahtzee-die>
       </div>
-      <div class="UpperBonus"></div>
-      <div class="AdditionalYahtzees"></div>
       <button class="Roll">Roll</button>
-      <div class="Score"></div>
     </yahtzee-game>
     <script src="./index.js" type="module"></script>
   </body>

@@ -132,13 +132,10 @@ class Yahtzee {
       if (index < 6) upper += score;
       else lower += score;
     });
-    this._upperBonus = upper >= 63;
+    this._upperBonus = upper >= 63 ? 35 : 0;
 
     this._score =
-      upper +
-      (this._upperBonus ? 35 : 0) +
-      lower +
-      this._additionalYahtzees * 100;
+      upper + this._upperBonus + lower + this._additionalYahtzees * 100;
     return this._score;
   }
 }
