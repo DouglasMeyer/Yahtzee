@@ -120,11 +120,11 @@ test("can score Upper bonus", () => {
   fixRolls(5, 5, 5, 1, 1);
   yahtzee.roll(0, 1, 2, 3, 4);
   yahtzee.assign("Fives");
-  expect(yahtzee.upperBonus).toBe(false);
+  expect(yahtzee.upperBonus).toBe(0);
   fixRolls(6, 6, 6, 1, 1);
   yahtzee.roll(0, 1, 2, 3, 4);
   yahtzee.assign("Sixes");
-  expect(yahtzee.upperBonus).toBe(true);
+  expect(yahtzee.upperBonus).toBe(35);
   expect(yahtzee.score).toBe(3 + 6 + 9 + 12 + 15 + 18 + 35);
 });
 
