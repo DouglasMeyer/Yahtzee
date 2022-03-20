@@ -1,18 +1,20 @@
 {
-  "name": "ParcelTemplate",
-  "version": "1.0.0",
-  "description": "",
+  "name": "yahtzee",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "start": "parcel ./src/index.html",
     "build": "parcel build --public-url \"./\" ./src/index.html",
-    "test": "jest"
+    "test": "jest",
+    "predeploy": "npm run test && npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.17.5",
+    "gh-pages": "^3.2.3",
     "jest": "^27.5.1",
     "parcel-bundler": "^1.12.5",
     "parcel-plugin-sw-asset-urls": "^0.1.2"
